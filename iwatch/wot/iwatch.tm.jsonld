@@ -1,0 +1,93 @@
+{
+    "@context": [
+        "https://www.w3.org/2022/wot/td/v1.1"
+    ],
+    "@type": [
+        "tm:ThingModel"
+    ],
+    "title": "iWatch",
+    "description": "A smartwatch with vital signs, timestamp, and location features.",
+    "version": {
+        "model": "1.0.0",
+        "instance": "1.0.0"
+    },
+    "links": [
+        {
+            "rel": "tm:ThingModel",
+            "href": "http://192.168.1.98:8000/iwatch.tm.jsonld",
+            "type": "application/tm+json",
+            "instanceName": "iWatch"
+        }
+    ],
+    "tm:optional": [],
+    "properties": {
+        "heart_rate": {
+            "title": "Heart Rate",
+            "description": "Heart rate measurement in beats per minute",
+            "type": "number",
+            "minimum": 60,
+            "observable": true,
+            "readOnly": false,
+            "writeOnly": false
+        },
+        "timestamp": {
+            "title": "Timestamp",
+            "description": "Timestamp of when the data was recorded",
+            "type": "string",
+            "format": "date-time",
+            "default": "1970-01-01T00:00:00.000Z",
+            "observable": true,
+            "readOnly": false,
+            "writeOnly": false
+        },
+        "longitude": {
+            "title": "Longitude",
+            "description": "Longitude of user location",
+            "type": "number",
+            "default": 0,
+            "observable": true,
+            "readOnly": false,
+            "writeOnly": false
+        },
+        "latitude": {
+            "title": "Latitude",
+            "description": "Latitude of user location",
+            "type": "number",
+            "default": 0,
+            "observable": true,
+            "readOnly": false,
+            "writeOnly": false
+        },
+        "result": {
+            "title": "Result",
+            "description": "Custom result data from the watch",
+            "type": "object",
+            "readOnly": false,
+            "writeOnly": false,
+            "observable": false
+        }
+        
+    },
+    "messages": {
+        "my-message": {
+        "title": "Custom Command from Ditto",
+        "description": "Send a simple message from Ditto to the client",
+        "payload": {
+            "type": "object",
+            "properties": {
+                "message": {
+                "type": "string"
+                }
+            },
+            "required": ["message"]
+        }
+        }
+    },
+    "events": {},
+    "security": "basic_sc",
+    "securityDefinitions": {
+        "basic_sc": {
+            "scheme": "basic"
+        }
+    }
+}
