@@ -145,64 +145,18 @@ curl -X POST \
     }
 }'
 ```
-
-# Send data to Eclipse Ditto from iWatch
-This will be handled in the `Dockerfile.iwatch`, so we don't need to install anything locally.
-Just do the following:
+## start Grafana  :
+cd ditto
 
 ```
-cd iwatch/dockerfile
-```
+cd deployment/docker
 
 ```
-docker build --no-cache  -t iwatch_image -f Dockerfile.iwatch .
-```
+docker compose -f docker-compose.grafana up -d
+ 
+after we run the container we should log in to Grafana 
 
-```
-docker run -it --name iwatch-container --network docker_default iwatch_image
-```
+##open Grafanaa
+Grafana: http://localhost:3000
+(login: admin / admin123)
 
-# Test if the digital twin is being updated
-To see if the twin is being updated with the data send by script we can run the following:
-```
-curl -u ditto:ditto -X GET 'http://localhost:8080/api/2/things/org.Iotp2c:iwatch'
-```
-
-
-# Payload mapping
-Depending on your IoT-Device, you may have to map the payload that you send to Eclipse Ditto. Because IoT-Devices are often limited due to their memory, it's reasonable not to send fully qualified Ditto-Protocol messages from the IoT-Device. 
-In this case, the function that simulates the data generated from an iWatch sends a dictionary with the data from iWatch.
-After that we will map this payload so it is according to the Ditto-Protocol format.
-
-Ditto-Protocol format (in the `send_data_iwatch.py`):
-```
-ditto_data = {
-    "topic": "org.Iotp2c/iwatch/things/twin/commands/modify",
-    "path": "/",
-    "value":{
-      "thingId":"org.Iotp2c:iwatch",
-      "policyId":"org.Iotp2c:policy",
-      "definition":"https://raw.githubusercontent.com/bernar0507/Eclipse-Ditto-MQTT-iWatch/main/iwatch/wot/iwatch.tm.jsonld",
-         "attributes":{
-            "heart_rate":iwatch_data['heart_rate'],
-            "timestamp":iwatch_data['timestamp'],
-            "longitude":iwatch_data['longitude'],
-            "latitude":iwatch_data['latitude']
-        }
-    }
-}
-```
-
-`topic`: This is the topic to which the message will be published. In this case, the topic is "org.Iotp2c/iwatch/things/twin/commands/modify", which suggests that the message is intended to modify a twin (digital representation) of an iWatch device in an IoT platform.
-
-`path`: This is the path within the twin where the value will be updated. In this case, the path is "/", indicating that the value should be updated at the root level of the iWatch twin.
-
-`value`: This is the data payload that will be updated in the twin.
-
-`thingId`: This is the unique identifier of the iWatch device within the IoT platform. In this example, the thingId is "org.Iotp2c:iwatch".
-
-`policyId`: This is the identifier of the policy that governs the access control of the iWatch device. In this example, the policyId is "org.Iotp2c:policy".
-
-`definition`: This is a URI referencing the JSON-LD file that contains the Thing Model for the iWatch device. In this example, the definition is "https://raw.githubusercontent.com/bernar0507/Eclipse-Ditto-MQTT-iWatch/main/iwatch/wot/iwatch.tm.jsonld".
-
-`attributes`: This is a dictionary of key-value pairs that represent metadata about the iWatch device. In this example, the attributes include the heart rate, timestamp, longitude, and latitude data retrieved from the iwatch_data variable.
