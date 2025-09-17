@@ -16,6 +16,7 @@ MQTT_TOPIC = f"{THING_ID}/things/twin/commands/modify"
 SUBSCRIBE_TOPIC = f"{THING_ID}/things/twin/events/modified"
 
 MQTT_BROKER = "host.docker.internal"  # Change if needed
+#MQTT_BROKER = "192.168.55.212"  # Change if needed
 #MQTT_BROKER = "192.168.1.98"  # Change if needed
 #MQTT_BROKER = "localhost"  # Change if needed
 #MQTT_BROKER = socket.gethostbyname("mosquitto")  # Change if needed
@@ -165,7 +166,7 @@ dict_dt = {property: None for property in properties}
 #for i in range(4):
 iwatch_data = next(iwatch_simulator.iwatch(dict_dt))
 send_data_to_ditto(iwatch_data)
-    #time.sleep(1)
+time.sleep(1)
 try:
     while True:
         time.sleep(1)

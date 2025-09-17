@@ -3,14 +3,52 @@ import paho.mqtt.client as mqtt
 import time
 import joblib
 import numpy as np
+from influxdb import InfluxDBClient
+from datetime import datetime
+
 # -------------------
 # CONFIG
 # -------------------
 THING_ID = "org.Iotp2c/iwatch"
 BROKER = "host.docker.internal"
+#BROKER = "192.168.55.212"
 PORT = 1883
 USERNAME = "ditto"
 PASSWORD = "ditto"
+
+# -------------------
+# GRAFANA SETUP
+# -------------------
+
+
+influx = InfluxDBClient(
+    host='localhost', port=8086,
+    username='admin', password='admin123',
+    database='heart_data'
+)
+
+def save_to_influx(heart_rate: float, status: str, device="iwatch"):
+    # status: "normal" or "anomaly"
+    point = [
+        {
+            "measurement": "heart_rate",
+            "tags": {
+                "device": device,
+                "status": status,              # tag for easy filtering in Grafana
+            },
+            "time": datetime.utcnow().isoformat() + "Z",
+            "fields": {
+                "value": float(heart_rate),    # numeric value for charting
+                "anomaly": 1 if status == "Anomaly Detected" else 0,  # numeric flag for thresholds,
+                "status_text": status
+            }
+        }
+    ]
+    influx.write_points(point)
+# -------------------
+# -------------------
+
+
 
 # Topics
 TOPIC_TWIN_MODIFIED = f"{THING_ID}/things/twin/events/modified"
@@ -58,6 +96,7 @@ def handle_twin_update(data):
     # Extract heart rate if exists
     try:
         heart_rate = data["value"]["attributes"]["heart_rate"]
+        timestamp=data["value"]["attributes"]["timestamp"]
         print(f"💓 New heart rate: {heart_rate}")
 
         
@@ -65,6 +104,8 @@ def handle_twin_update(data):
         result = "normal" if prediction == 1 else "Anomaly Detected"
 
         print(f"🤖 AI Model result: {result}")
+        save_to_influx(heart_rate, result)
+
         # Process with AI model
         #result = {"alert": "high" if heart_rate > 100 else "normal"}
         ditto_data = {
@@ -76,7 +117,7 @@ def handle_twin_update(data):
           "definition":"http://192.168.1.98:8000/iwatch.tm.jsonld",
                 "attributes":{
                     "heart_rate":heart_rate,
-                    "timestamp":"2025-08-11T11:56:40Z",
+                    "timestamp":timestamp,
                     "longitude":-122.41938999999999,
                     "latitude":37.774910000000006,
                     "result": {"status": result}
