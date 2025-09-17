@@ -148,12 +148,18 @@ curl -X POST \
 ## start Grafana  :
 ```
 cd ditto
+```
 
 ```
 cd deployment/docker
+```
 
 ```
 docker compose -f docker-compose.grafana up -d
+```
+
+
+
  
 after we run the container we should log in to Grafana 
 
